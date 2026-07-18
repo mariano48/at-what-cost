@@ -75,7 +75,7 @@ See [ADR 0002](decisions/0002-nestjs-over-express.md) for the full reasoning.
 ## What you're demonstrating
 
 | Pattern     | Primary benefit              | Scaling dimension                   |
-| ----------- | ----------------------------- | ------------------------------------ |
+| ----------- | ---------------------------- | ----------------------------------- |
 | **Caching** | Fewer DB hits, lower latency | Read scalability, cost reduction    |
 | **Pub/Sub** | Loose coupling, fan-out      | Horizontal scaling of consumers     |
 | **Workers** | Offload slow work from HTTP  | Throughput, resilience under spikes |

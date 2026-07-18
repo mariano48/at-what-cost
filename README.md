@@ -2,7 +2,7 @@
 
 Hands-on NestJS labs showing **when and why** to add cache, pub/sub, and background workers — with Docker, benchmarks, and synthetic domains safe for public GitHub.
 
-> **Status:** Phase 0 (scaffold) in progress. Labs are not implemented yet.
+> **Status:** Phase 1a in progress — Lab 01's core product API is up (no cache yet). See [docs/PLAN.md](docs/PLAN.md) for the phased build order.
 
 ## What this repo will be
 
@@ -10,7 +10,7 @@ Modular labs demonstrating scaling and reliability patterns you can't show from 
 
 | Lab                                                   | Pattern           | Problem                                                               | Status      |
 | ----------------------------------------------------- | ----------------- | --------------------------------------------------------------------- | ----------- |
-| [01 — Caching](labs/01-caching)                       | Redis cache-aside | Hot reads hammer the database                                         | Not started |
+| [01 — Caching](labs/01-caching)                       | Redis cache-aside | Hot reads hammer the database                                         | Core API done, cache pending (Phase 1b) |
 | [02 — Pub/Sub](labs/02-pub-sub)                       | Domain events     | God service does payment, mail, audit, and entity updates in one flow | Not started |
 | [03 — Background workers](labs/03-background-workers) | BullMQ queues     | Slow work blocks HTTP                                                 | Not started |
 
@@ -28,7 +28,11 @@ cp .env.example .env
 # 3. Start shared infra (Postgres + Redis)
 pnpm run infra:up
 
-# 4. Run a lab (once implemented)
+# 4. Migrate + seed Lab 01's database (first run only)
+pnpm run lab:01:migrate
+pnpm run lab:01:seed
+
+# 5. Run Lab 01
 pnpm run lab:01
 ```
 

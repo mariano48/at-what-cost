@@ -11,7 +11,7 @@ The learning path this repo sits in (private sandbox → public DDD repo → thi
 
 ## Decision
 
-Rebuild the same *shape* of problem — payment processing coupled to notification and audit side effects — using a synthetic products/orders/checkout domain with fake payment providers and simulated (not real) mail/audit delays. No employer-specific naming, data, or business logic.
+Rebuild the same _shape_ of problem — payment processing coupled to notification and audit side effects — using a synthetic products/orders/checkout domain with fake payment providers and simulated (not real) mail/audit delays. No employer-specific naming, data, or business logic.
 
 ## Consequences
 

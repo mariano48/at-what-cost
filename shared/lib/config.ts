@@ -24,6 +24,11 @@ export const config = {
   databaseUrl: readEnv('DATABASE_URL', 'postgresql://labs:labs@localhost:5433/labs'),
   redisUrl: readEnv('REDIS_URL', 'redis://localhost:6380'),
 
+  lab01: {
+    port: readIntEnv('LAB01_PORT', 3001),
+    dbLatencyMs: readIntEnv('LAB01_DB_LATENCY_MS', 50),
+  },
+
   cache: {
     enabled: readBoolEnv('CACHE_ENABLED', true),
     ttlSeconds: readIntEnv('CACHE_TTL_SECONDS', 60),
