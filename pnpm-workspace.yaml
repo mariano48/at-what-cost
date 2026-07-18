@@ -1,0 +1,6 @@
+packages:
+  - 'shared'
+  - 'labs/*'
+
+allowBuilds:
+  esbuild: true

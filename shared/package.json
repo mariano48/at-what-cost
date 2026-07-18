@@ -1,0 +1,14 @@
+{
+  "name": "@shared/core",
+  "version": "0.1.0",
+  "private": true,
+  "main": "lib/index.ts",
+  "types": "lib/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
