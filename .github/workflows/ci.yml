@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Prisma's generated client is required for typecheck/build/test but
+      # isn't checked in — regenerate it explicitly rather than relying on an
+      # install-time hook. Add one line per lab here as future labs adopt Prisma.
+      - name: Generate Prisma client (Lab 01)
+        run: pnpm --filter @labs/01-caching run prisma:generate
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Build
+        run: pnpm run build
+
+      # Unit-level only — these don't spin up Postgres/Redis, so no service
+      # containers are needed here. Labs 02/03 may need service containers in
+      # this job once they add tests that exercise real infra.
+      - name: Test
+        run: pnpm run test
