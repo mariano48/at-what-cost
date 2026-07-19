@@ -186,7 +186,7 @@ at-what-cost/
 | Jobs       | `@nestjs/bullmq`                          |
 | Monorepo   | pnpm workspaces                           |
 | Benchmarks | autocannon + custom scripts               |
-| Node       | 20 LTS                                    |
+| Node       | 22 LTS (pnpm 11's package index requires Node ≥22.13) |
 
 ---
 
