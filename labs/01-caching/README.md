@@ -9,7 +9,7 @@ A product catalog read (`GET /products/:id`) hits Postgres on every request. Und
 ## What's here
 
 - NestJS + Prisma product API — `Product { id, sku, name, price, updatedAt }`, seeded with 10,000 synthetic rows
-- `LAB01_DB_LATENCY_MS` (default `50`) adds artificial latency to every DB read, so the cost of a cache miss is visible even on localhost Postgres
+- `LAB01_DB_LATENCY_MS` (default `50`) adds artificial latency to every DB read, so the cost of a cache miss is visible even on localhost Postgres. This flag is a flat constant, not a function of query complexity — it stands in for the network round-trip and connection-pool contention of a database reached over a network under concurrent load, not for a computationally expensive query. It amplifies a real effect rather than manufacturing one: even with `LAB01_DB_LATENCY_MS=0`, 50 concurrent connections contending for Postgres's connection pool still produce a measurable, if smaller, gap between cache off and on — see "How much of this is the injected latency?" in the benchmark section below.
 - Cache-aside in front of `GET /products/:id` only — `@nestjs/cache-manager` + Redis via `@keyv/redis`, gated by `CACHE_ENABLED`
 - `PATCH /products/:id` invalidates the cached entry for that id
 - `GET /metrics` exposes `dbQueryCount`, `cacheHitCount`, `cacheMissCount`, `cacheHitRate`
@@ -53,7 +53,7 @@ Cache-aside hangs off an injected `CACHE_MANAGER` provider (`@nestjs/cache-manag
 
 ## Benchmark: cache off vs on
 
-`scripts/benchmark.ts` runs autocannon against `GET /products/1` — 50 connections, 10 seconds — and reports the `/metrics` delta alongside latency/throughput. Each row below is a separate run: the server was restarted with the given `CACHE_ENABLED` value, since the toggle is read once at boot.
+`scripts/benchmark.ts` runs autocannon against `GET /products/1` — 50 connections, 10 seconds — and reports the `/metrics` delta alongside latency/throughput. Each row below is a separate run: the server was restarted with the given `CACHE_ENABLED` value, since the toggle is read once at boot. Each configuration was run 3 times; the table reports the range across those runs, not a single sample.
 
 ```bash
 # cache off
@@ -65,14 +65,25 @@ CACHE_ENABLED=true pnpm run lab:01      # separate terminal
 pnpm run lab:01:benchmark
 ```
 
-| Cache        | req/sec (avg) | p50 latency | p99 latency | DB queries (10s, 61k req) |
-| ------------ | ------------: | ----------: | ----------: | ------------------------- |
-| Off          | 795           | 62 ms       | 78 ms       | 8,000 (every request)     |
-| On           | 6,116         | 7 ms        | 12 ms       | 50 (cache misses only)    |
+| Cache | req/sec (avg, range across 3 runs) | p50 latency | p99 latency | DB queries (10s, ~8k req) |
+| ----- | ----------------------------------: | ----------: | ----------: | ------------------------- |
+| Off   | 799 – 805                            | 61 – 62 ms  | 74 – 80 ms  | ~8,000 (every request)    |
+| On    | 5,622 – 5,841                        | 8 ms        | 12 – 13 ms  | 0 – 50 (cache misses only) |
 
-~7.7× more throughput and ~6.5× lower p99 latency, with 99.9% of reads served from Redis instead of Postgres. Measured locally (Docker Desktop, Postgres 16 + Redis 7 containers, `LAB01_DB_LATENCY_MS=50`, `CACHE_TTL_SECONDS=60`) — the ratio matters more than the absolute numbers, which will vary by machine.
+~7.2–7.3× more throughput and ~5.7–6.5× lower p99 latency, with 99.9–100% of reads served from Redis instead of Postgres. Measured locally (Docker Desktop, Postgres 16 + Redis 7 containers, `LAB01_DB_LATENCY_MS=50`, `CACHE_TTL_SECONDS=60`) — the ratio matters more than the absolute numbers, which will vary by machine.
 
 This benchmark hits a single hot key on purpose: it's the best case for cache-aside (high reuse, one key) and the worst case for Postgres-per-request. A workload with 10,000 distinct keys and low reuse would show a much smaller gap — see "When this would NOT be worth it" below.
+
+### How much of this is the injected latency?
+
+`LAB01_DB_LATENCY_MS` (default `50`) is doing real work in the table above — it's what makes the "hot read" problem visible on a local Postgres instance that would otherwise respond quickly. Running the same benchmark once each with `LAB01_DB_LATENCY_MS=0` isolates how much of the gap is that injected flag versus a real, measurable cost of hitting Postgres under load:
+
+| Cache (LAB01_DB_LATENCY_MS=0) | req/sec (avg) | p50 latency | p99 latency |
+| ------------------------------ | ------------: | ----------: | ----------: |
+| Off                             | 2,389         | 19 ms       | 39 ms       |
+| On                              | 7,611         | 6 ms        | 13 ms       |
+
+Even with the artificial delay removed entirely, cache-off is still ~3.2× slower than cache-on, and p99 is ~3× higher. That gap isn't the injected flag — it's 50 concurrent connections contending for Postgres's (and Prisma's) finite connection pool, plus the real, if small, cost of a network round trip to the Postgres container and back. In other words: `LAB01_DB_LATENCY_MS=50` amplifies a real effect to make it visible on a quiet localhost database, it doesn't manufacture one from nothing — but the amplified 7.7× figure above shouldn't be read as "caching always gets you 7.7×"; the more conservative, real number for this exact workload without the injected flag is ~3×.
 
 ## Cache stampede and TTL
 
