@@ -8,6 +8,13 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # prisma.config.ts requires DATABASE_URL to resolve at config-load time
+    # even for `prisma generate`, which never opens a connection — it only
+    # reads the schema. No .env file exists in a clean checkout (it's
+    # gitignored on purpose), so a placeholder value is enough; nothing here
+    # actually connects to this host.
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
     steps:
       - uses: actions/checkout@v4
 
