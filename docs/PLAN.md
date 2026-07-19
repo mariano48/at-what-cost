@@ -5,13 +5,13 @@
 
 **One-line pitch:** _Hands-on NestJS labs showing when and why to add cache, pub/sub, and background workers — with Docker, benchmarks, and no proprietary baggage._
 
-Individual decisions with fuller context and trade-offs live in [docs/decisions/](decisions/). This file covers the overall shape of the repo.
+Individual decisions with fuller context and trade-offs live in [docs/decisions/](decisions/). This file covers the overall shape of the repo. The writing standard both this file and the ADRs follow: [documentation-philosophy.md](documentation-philosophy.md).
 
 ---
 
-## One repo or many? (Recommendation: one monorepo)
+## One repo or many?
 
-For portfolio visibility, modular labs, shared Docker infra, and learning NestJS — **one repository is the better choice**.
+One monorepo makes sense here given the goals — portfolio visibility, modular labs, shared Docker infra, and learning NestJS. That's a fit for this repo's current scope, not a claim that monorepos are generally superior.
 
 |                  | **Monorepo (recommended)**                                       | **Separate repos per lab**                              |
 | ---------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
@@ -72,15 +72,15 @@ See [ADR 0002](decisions/0002-nestjs-over-express.md) for the full reasoning.
 
 ---
 
-## What you're demonstrating
+## What you're demonstrating — and at what cost
 
-| Pattern     | Primary benefit              | Scaling dimension                   |
-| ----------- | ---------------------------- | ----------------------------------- |
-| **Caching** | Fewer DB hits, lower latency | Read scalability, cost reduction    |
-| **Pub/Sub** | Loose coupling, fan-out      | Horizontal scaling of consumers     |
-| **Workers** | Offload slow work from HTTP  | Throughput, resilience under spikes |
+| Pattern     | Primary benefit              | Scaling dimension                   | Cost introduced                                                                           |
+| ----------- | ---------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Caching** | Fewer DB hits, lower latency | Read scalability, cost reduction    | Data can be stale between writes and cache expiry; invalidation bugs are silent            |
+| **Pub/Sub** | Loose coupling, fan-out      | Horizontal scaling of consumers     | No single place to read the full flow; failures surface downstream, not at the source      |
+| **Workers** | Offload slow work from HTTP  | Throughput, resilience under spikes | Caller no longer knows the outcome immediately; retries and failures need their own handling |
 
-These patterns also improve **reliability** and **operational decoupling**, not just raw QPS.
+These patterns also improve **reliability** and **operational decoupling**, not just raw QPS — but none of them are free. Each lab's README states the specific cost for that lab's context, not just this general shape of it.
 
 ---
 
@@ -92,13 +92,13 @@ Lab 02 uses **`ARCHITECTURE=monolith|events`** toggle (same API, two implementat
 
 ```mermaid
 flowchart TB
-  subgraph monolith [MonolithMode_Bad]
+  subgraph monolith [MonolithMode_Coupled]
     Pay1[PaymentsService] --> Charge1[Charge card]
     Pay1 --> Update1[Update order entity]
     Pay1 --> Mail1[Send receipt email]
     Pay1 --> Audit1[Persist audit log]
   end
-  subgraph events [EventDriven_Good]
+  subgraph events [EventDriven_Decoupled]
     Pay2[PaymentsService] --> Charge2[Charge card]
     Pay2 -->|PaymentCompleted| Broker[(Redis)]
     Broker --> Orders[OrdersService]
@@ -107,7 +107,7 @@ flowchart TB
   end
 ```
 
-This mirrors a real problem, rebuilt with a synthetic domain so it's safe to publish — see [ADR 0003](decisions/0003-synthetic-data-no-proprietary-code.md).
+Neither side is unconditionally better: the monolith is simpler to read, deploy, and debug end-to-end; the event-driven version isolates failures and scales consumers independently at the cost of losing that single-flow visibility. Lab 02's `ARCHITECTURE` toggle exists so both trade-offs are visible in the same codebase. This mirrors a real problem, rebuilt with a synthetic domain so it's safe to publish — see [ADR 0003](decisions/0003-synthetic-data-no-proprietary-code.md).
 
 ---
 
@@ -132,6 +132,7 @@ at-what-cost/
 │   ├── types/
 │   └── lib/
 └── docs/
+    ├── documentation-philosophy.md  # writing standard for every doc here
     ├── PLAN.md                  # this file
     ├── decisions/                # ADRs — why, not just what
     ├── when-to-use-what.md
@@ -206,3 +207,5 @@ at-what-cost/
 3. Numeric before/after proof in every lab
 4. Safe to share publicly — no employer details
 5. Lab 02 shows god-service decomposition without real payment systems
+6. Each lab README names the pattern's cost explicitly — staleness, failure modes, operational burden — not only its benefit. This is the repo's namesake question, so it can't be left implicit.
+7. No lab or doc claims a pattern is universally correct; each states the conditions under which it wouldn't be worth adopting

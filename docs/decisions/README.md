@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-Short, dated records of decisions that shaped this repo — why an option was chosen over the alternatives, and what it costs. `docs/PLAN.md` covers the overall shape of the project; these go deeper on individual calls.
+Short, dated records of decisions that shaped this repo — why an option was chosen over the alternatives, and what it costs. `docs/PLAN.md` covers the overall shape of the project; these go deeper on individual calls. Every record here follows [../documentation-philosophy.md](../documentation-philosophy.md) — in particular, a decision isn't done until its Consequences section names a real cost, not just a benefit.
 
 New entries are added as real decisions come up during the build, not written all upfront.
 
