@@ -134,9 +134,7 @@ at-what-cost/
 └── docs/
     ├── documentation-philosophy.md  # writing standard for every doc here
     ├── PLAN.md                  # this file
-    ├── decisions/                # ADRs — why, not just what
-    ├── when-to-use-what.md
-    └── enterprise-analogies.md
+    └── decisions/                # ADRs — why, not just what
 ```
 
 ---
@@ -197,6 +195,8 @@ at-what-cost/
 - **Lab 04:** Rate limiting + horizontal API scaling
 - **Lab 05:** Idempotency keys for webhook consumers
 - **Lab 06:** CQRS read model (event projection)
+- **`docs/when-to-use-what.md`:** a cross-lab decision guide (cache vs. pub/sub vs. workers, side by side). Deferred until at least Lab 02 exists — with one lab built, there's nothing yet to compare it against.
+- **`docs/enterprise-analogies.md`:** mapping each lab's synthetic domain back to the real systems it stands in for. Same reasoning — deferred until there's more than one lab's worth of analogies to draw.
 
 ---
 
