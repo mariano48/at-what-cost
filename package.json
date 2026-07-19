@@ -15,7 +15,9 @@
     "lab:03": "echo \"Lab 03 not implemented yet — see docs/PLAN.md Phase 3\" && exit 1",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "pnpm -r --if-present run typecheck"
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "build": "pnpm -r --if-present run build",
+    "test": "pnpm -r --if-present run test"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
