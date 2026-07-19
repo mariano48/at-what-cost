@@ -1,3 +1,13 @@
+import * as path from 'path';
+import { config as loadEnv } from 'dotenv';
+
+// pnpm --filter runs this with cwd = labs/01-caching, so bare `dotenv/config`
+// would only ever see this package's local .env (just DATABASE_URL) and miss
+// the shared config — CACHE_ENABLED, LAB01_PORT, etc. — that lives in the
+// repo root .env. Load both explicitly, root taking precedence, so editing
+// the root .env and restarting actually changes what the app sees.
+loadEnv({ path: [path.resolve(__dirname, '../../../.env'), path.resolve(__dirname, '../.env')] });
+
 import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';

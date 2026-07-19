@@ -2,7 +2,7 @@
 
 Hands-on NestJS labs showing **when and why** — and **at what cost** — to add cache, pub/sub, and background workers, with Docker, benchmarks, and synthetic domains safe for public GitHub.
 
-> **Status:** Phase 1a in progress — Lab 01's core product API is up (no cache yet). See [docs/PLAN.md](docs/PLAN.md) for the phased build order.
+> **Status:** Lab 01 done — Redis cache-aside is in front of the hot product read, with before/after benchmark numbers. See [docs/PLAN.md](docs/PLAN.md) for the phased build order.
 
 Every lab and doc here follows [docs/documentation-philosophy.md](docs/documentation-philosophy.md): the point isn't to show a pattern works, it's to show what it costs to adopt one — and when that cost isn't worth paying.
 
@@ -12,7 +12,7 @@ Modular labs demonstrating scaling and reliability patterns you can't show from 
 
 | Lab                                                   | Pattern           | Problem                                                               | Cost it introduces                                                          | Status      |
 | ----------------------------------------------------- | ----------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------- |
-| [01 — Caching](labs/01-caching)                       | Redis cache-aside | Hot reads hammer the database                                         | Staleness window, invalidation bugs, cache-stampede risk, one more thing to run | Core API done, cache pending (Phase 1b) |
+| [01 — Caching](labs/01-caching)                       | Redis cache-aside | Hot reads hammer the database                                         | Staleness window, invalidation bugs, cache-stampede risk, one more thing to run | Done — see [benchmark](labs/01-caching#benchmark-cache-off-vs-on) |
 | [02 — Pub/Sub](labs/02-pub-sub)                       | Domain events     | God service does payment, mail, audit, and entity updates in one flow | Eventual consistency, harder-to-trace failures across services, broker to operate | Not started |
 | [03 — Background workers](labs/03-background-workers) | BullMQ queues     | Slow work blocks HTTP                                                 | Delayed feedback to the caller, retry/idempotency handling, queue backlog to monitor | Not started |
 

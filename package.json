@@ -10,6 +10,7 @@
     "lab:01": "pnpm --filter @labs/01-caching run start:dev",
     "lab:01:migrate": "pnpm --filter @labs/01-caching run prisma:migrate",
     "lab:01:seed": "pnpm --filter @labs/01-caching run prisma:seed",
+    "lab:01:benchmark": "pnpm --filter @labs/01-caching run benchmark",
     "lab:02": "echo \"Lab 02 not implemented yet — see docs/PLAN.md Phase 2a/2b\" && exit 1",
     "lab:03": "echo \"Lab 03 not implemented yet — see docs/PLAN.md Phase 3\" && exit 1",
     "lint": "eslint .",
