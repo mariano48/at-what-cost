@@ -1,0 +1,11 @@
+---
+description: at-what-cost repo — public vs author docs
+alwaysApply: true
+---
+
+# Context
+
+- **Public:** [docs/public-contract.md](../../docs/public-contract.md), [docs/PLAN.md](../../docs/PLAN.md), lab READMEs, ADRs.
+- **Author (local, gitignored):** `.cursor/docs/` — status, handoffs, authoring guide. Read when the user @-mentions them or asks for session status.
+
+Each lab = one question + one toggle + measured cost. Synthetic domain only — no employer code or naming.

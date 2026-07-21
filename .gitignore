@@ -25,3 +25,6 @@ Thumbs.db
 
 # Coverage
 coverage/
+
+# Author / agent docs (local only — see AGENTS.md)
+.cursor/docs/

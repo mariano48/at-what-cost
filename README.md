@@ -2,19 +2,21 @@
 
 Hands-on NestJS labs showing **when and why** — and **at what cost** — to add cache, pub/sub, and background workers, with Docker, benchmarks, and synthetic domains safe for public GitHub.
 
-> **Status:** Lab 01 done — Redis cache-aside is in front of the hot product read, with before/after benchmark numbers. See [docs/PLAN.md](docs/PLAN.md) for the phased build order.
+> **Status:** Lab 01 done — Redis cache-aside on the hot product read, with before/after benchmarks. [Public contract](docs/public-contract.md) · [PLAN](docs/PLAN.md)
 
 Every lab and doc here follows [docs/documentation-philosophy.md](docs/documentation-philosophy.md): the point isn't to show a pattern works, it's to show what it costs to adopt one — and when that cost isn't worth paying.
 
-## What this repo will be
+## Why synthetic, why separate labs
 
-Modular labs demonstrating scaling and reliability patterns you can't show from enterprise code — each one paired with the cost it introduces, not just the problem it solves:
+These labs recreate **scaling pressures from production experience** using a generic shop domain. Each lab runs alone and measures **one trade-off** — the only honest way to show cost without publishing employer code. In a real system, cache, events, and workers often compose; here they're split so each gain and loss stays visible. Full contract: [docs/public-contract.md](docs/public-contract.md).
 
-| Lab                                                   | Pattern           | Problem                                                               | Cost it introduces                                                          | Status      |
-| ----------------------------------------------------- | ----------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------- |
-| [01 — Caching](labs/01-caching)                       | Redis cache-aside | Hot reads hammer the database                                         | Staleness window, invalidation bugs, cache-stampede risk, one more thing to run | Done — see [benchmark](labs/01-caching#benchmark-cache-off-vs-on) |
-| [02 — Pub/Sub](labs/02-pub-sub)                       | Domain events     | God service does payment, mail, audit, and entity updates in one flow | Eventual consistency, harder-to-trace failures across services, broker to operate | Not started |
-| [03 — Background workers](labs/03-background-workers) | BullMQ queues     | Slow work blocks HTTP                                                 | Delayed feedback to the caller, retry/idempotency handling, queue backlog to monitor | Not started |
+## Labs
+
+| Lab | Question | Cost (one line) | Status |
+| --- | --- | --- | --- |
+| [01 — Caching](labs/01-caching) | Fewer DB hits worth staleness? | Staleness, invalidation, one more thing to run | **Done** — [benchmark](labs/01-caching#benchmark-cache-off-vs-on) |
+| [02 — Pub/Sub](labs/02-pub-sub) | Decouple side effects worth losing one readable flow? | Harder tracing, downstream failures | Not started |
+| [03 — Workers](labs/03-background-workers) | Async worth losing immediate feedback? | Job state, retries, backlog | Not started |
 
 Stack: **NestJS 11**, **TypeScript**, **Prisma**, **Redis**, **BullMQ**, **Docker Compose**.
 
@@ -42,16 +44,16 @@ pnpm run lab:01
 
 ```
 at-what-cost/
+├── AGENTS.md              # Agent instructions (public)
+├── .cursor/rules/         # Cursor rules (public)
 ├── docker-compose.yml     # Postgres + Redis
 ├── labs/                  # One folder per lab, runnable independently
-│   ├── 01-caching/
-│   ├── 02-pub-sub/
-│   └── 03-background-workers/
 ├── shared/                # @shared/core — config, logger, shared types
 └── docs/
-    ├── documentation-philosophy.md  # The standard every doc here is held to
-    ├── PLAN.md            # Architecture and design rationale
-    └── decisions/         # ADRs — why, not just what
+    ├── public-contract.md           # What the repo commits to (read this first)
+    ├── documentation-philosophy.md
+    ├── PLAN.md
+    └── decisions/                   # ADRs
 ```
 
 ## Architecture & decisions
@@ -59,6 +61,8 @@ at-what-cost/
 The overall design rationale and diagrams: **[docs/PLAN.md](docs/PLAN.md)**
 
 Individual decisions with fuller context and trade-offs: **[docs/decisions/](docs/decisions/)**
+
+Public contract (synthetic domain, separate labs, minimum bar): **[docs/public-contract.md](docs/public-contract.md)**
 
 The writing standard behind both: **[docs/documentation-philosophy.md](docs/documentation-philosophy.md)**
 
