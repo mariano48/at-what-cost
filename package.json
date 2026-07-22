@@ -14,6 +14,7 @@
     "lab:02": "pnpm --filter @labs/02-pub-sub run start:dev",
     "lab:02:migrate": "pnpm --filter @labs/02-pub-sub run prisma:migrate",
     "lab:02:generate": "pnpm --filter @labs/02-pub-sub run prisma:generate",
+    "lab:02:demo": "pnpm --filter @labs/02-pub-sub run demo-flow",
     "lab:03": "echo \"Lab 03 not implemented yet — see docs/PLAN.md Phase 3\" && exit 1",
     "lint": "eslint .",
     "format": "prettier --write .",
