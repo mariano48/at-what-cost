@@ -9,3 +9,4 @@ New entries are added as real decisions come up during the build, not written al
 | [0001](0001-monorepo-over-separate-repos.md)       | One monorepo instead of three separate repos |
 | [0002](0002-nestjs-over-express.md)                | NestJS instead of plain Express              |
 | [0003](0003-synthetic-data-no-proprietary-code.md) | Synthetic domain data, no real employer code |
+| [0004](0004-events-are-not-microservices.md)       | In-process events, not microservices (modular monolith) |

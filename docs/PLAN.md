@@ -109,6 +109,8 @@ flowchart TB
 
 Neither side is unconditionally better: the monolith is simpler to read, deploy, and debug end-to-end; the event-driven version isolates failures and scales consumers independently at the cost of losing that single-flow visibility. Lab 02's `ARCHITECTURE` toggle exists so both trade-offs are visible in the same codebase. This mirrors a real problem, rebuilt with a synthetic domain so it's safe to publish — see [ADR 0003](decisions/0003-synthetic-data-no-proprietary-code.md).
 
+The events side stays **in-process** (one Nest app), not separate services — decoupling is a code-boundary decision here, distribution is a later, load-driven one. See [ADR 0004](decisions/0004-events-are-not-microservices.md).
+
 ---
 
 ## Repository structure
@@ -167,7 +169,7 @@ Single Nest app, one `ARCHITECTURE=monolith|events` toggle (same API, two implem
 | Lab | Script          | Compares                                   |
 | --- | --------------- | ------------------------------------------ |
 | 01  | `benchmark.ts`  | p50/p99, req/sec cache off vs on           |
-| 02  | `demo-flow.ts`  | Monolith vs events latency + email failure |
+| 02  | `demo-flow.ts`  | Failure isolation: monolith 5xx (audit skipped) vs events 2xx (audit written) |
 | 03  | `spike-test.ts` | Async vs sync API p99                      |
 
 ---
