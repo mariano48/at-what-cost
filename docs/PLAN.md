@@ -64,7 +64,7 @@ Assumes you understand _why_ payment shouldn't send mail. Lab 02's monolith → 
 - **Modules + DI** — testable, explicit boundaries
 - **First-class integrations** — `@nestjs/cache-manager`, `@nestjs/microservices`, `@nestjs/bullmq`
 - **TypeScript by default** — DTOs, validation, typed event payloads
-- **Multiple apps in one lab** — Lab 02 uses separate Nest microservice entrypoints
+- **Modules + events in one app** — Lab 02 decouples via in-process domain events (`@nestjs/event-emitter`), not separate services
 
 Each lab README includes a **"NestJS vs plain Express"** callout.
 
@@ -99,11 +99,11 @@ flowchart TB
     Pay1 --> Audit1[Persist audit log]
   end
   subgraph events [EventDriven_Decoupled]
-    Pay2[PaymentsService] --> Charge2[Charge card]
-    Pay2 -->|PaymentCompleted| Broker[(Redis)]
-    Broker --> Orders[OrdersService]
-    Broker --> Notify[NotificationService]
-    Broker --> Audit[AuditService]
+    Pay2[CheckoutService] --> Charge2[Charge card]
+    Pay2 -->|PaymentCompleted| Bus["In-process event bus"]
+    Bus --> Orders[OrdersHandler]
+    Bus --> Notify[NotificationsHandler]
+    Bus --> Audit[AuditHandler]
   end
 ```
 
@@ -121,12 +121,7 @@ at-what-cost/
 ├── pnpm-workspace.yaml          # pnpm workspaces
 ├── labs/
 │   ├── 01-caching/
-│   ├── 02-pub-sub/
-│   │   └── apps/
-│   │       ├── payments-api/
-│   │       ├── orders/
-│   │       ├── notifications/
-│   │       └── audit/
+│   ├── 02-pub-sub/              # single Nest app; checkout + in-process handlers
 │   └── 03-background-workers/
 ├── shared/
 │   ├── types/
@@ -148,13 +143,15 @@ at-what-cost/
 - `PATCH /products/:id` invalidates cache
 - `scripts/benchmark.ts` — autocannon before/after
 
-### Lab 02 — Pub/Sub + god-service decomposition
+### Lab 02 — Pub/Sub (checkout god-service → events)
 
-**Act 1 — Monolith:** `POST /checkout` — charge → update order → email → audit (sequential, coupled failures)
+Single Nest app, one `ARCHITECTURE=monolith|events` toggle (same API, two implementations) — not separate services. Splitting processes is a load-profile decision (Lab 04), not required to show decoupling.
 
-**Act 2 — Events:** `payments-api` emits `PaymentCompleted`; `orders`, `notifications`, `audit` subscribe via Redis
+**Act 1 — Monolith:** `POST /checkout` — charge → update order → email → audit inline (sequential, coupled failures)
 
-- `scripts/demo-flow.ts` — latency + failure isolation comparison
+**Act 2 — Events:** `CheckoutService` emits `PaymentCompleted` in-process (`@nestjs/event-emitter`); `orders`, `notifications`, `audit` handlers react independently
+
+- `scripts/demo-flow.ts` — failure isolation comparison
 - Env: `SIMULATE_EMAIL_FAILURE=true` shows monolith vs events difference
 
 ### Lab 03 — Background workers (BullMQ)
@@ -182,7 +179,7 @@ at-what-cost/
 | Framework  | NestJS 11                                 |
 | ORM        | Prisma                                    |
 | Caching    | `@nestjs/cache-manager` + Redis           |
-| Pub/Sub    | `@nestjs/microservices` (Redis transport) |
+| Pub/Sub    | `@nestjs/event-emitter` (in-process)      |
 | Jobs       | `@nestjs/bullmq`                          |
 | Monorepo   | pnpm workspaces                           |
 | Benchmarks | autocannon + custom scripts               |

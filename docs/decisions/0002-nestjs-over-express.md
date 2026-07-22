@@ -7,7 +7,7 @@
 
 My day-to-day work stack is Express + JS. I could build these labs the same way, which would be faster to write, or use this as a deliberate opportunity to work in a framework with more structure and see how it changes the shape of the same problems.
 
-The three patterns being demonstrated — caching, pub/sub, background workers — all have first-class, documented modules in NestJS (`@nestjs/cache-manager`, `@nestjs/microservices`, `@nestjs/bullmq`). That's directly relevant: Lab 02 in particular needs several independent processes (`payments-api`, `orders`, `notifications`, `audit`) talking to each other, which is exactly the kind of thing Nest's module/DI system and microservice transports are built for.
+The three patterns being demonstrated — caching, pub/sub, background workers — all have first-class, documented modules in NestJS (`@nestjs/cache-manager`, `@nestjs/event-emitter`, `@nestjs/bullmq`). That's directly relevant: Lab 02 in particular decouples a checkout flow into independent side-effect handlers (`orders`, `notifications`, `audit`) within one app, which is exactly the kind of thing Nest's module/DI system and event emitter are built for. (The labs stay as a modular monolith on purpose — splitting into separate processes is an operational, load-profile decision, not what these labs measure.)
 
 ## Decision
 

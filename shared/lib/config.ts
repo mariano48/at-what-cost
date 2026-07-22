@@ -35,7 +35,9 @@ export const config = {
   },
 
   lab02: {
-    architecture: readEnv('ARCHITECTURE', 'events') as 'monolith' | 'events',
+    port: readIntEnv('LAB02_PORT', 3002),
+    // Baseline is the coupled monolith. Events mode arrives in Phase 2b.
+    architecture: readEnv('ARCHITECTURE', 'monolith') as 'monolith' | 'events',
     simulateChargeFailure: readBoolEnv('SIMULATE_CHARGE_FAILURE', false),
     simulateEmailFailure: readBoolEnv('SIMULATE_EMAIL_FAILURE', false),
   },

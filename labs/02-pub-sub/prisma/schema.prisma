@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+  // Own output dir so generating this lab's client never overwrites Lab 01's
+  // in the shared pnpm store (both use @prisma/client 7.8.0). Git/lint-ignored.
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  CHARGED
+  FAILED
+}
+
+// A synthetic checkout. One POST /checkout creates an order, then drives three
+// side effects (payment, receipt email, audit) — the god-service this lab is about.
+model Order {
+  id            Int         @id @default(autoincrement())
+  reference     String      @unique
+  customerEmail String
+  amount        Float
+  status        OrderStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  payment       Payment?
+
+  @@map("orders")
+}
+
+model Payment {
+  id          Int           @id @default(autoincrement())
+  orderId     Int           @unique
+  order       Order         @relation(fields: [orderId], references: [id])
+  amount      Float
+  status      PaymentStatus @default(PENDING)
+  providerRef String?
+  createdAt   DateTime      @default(now())
+
+  @@map("payments")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  event     String
+  orderId   Int?
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}

@@ -16,6 +16,8 @@ npm-debug.log*
 
 # Prisma
 prisma/*.db
+# Generated Prisma clients written into a lab's src (see schema generator output)
+**/src/generated/
 
 # OS / editor
 .DS_Store
