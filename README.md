@@ -2,7 +2,7 @@
 
 Hands-on NestJS labs showing **when and why** — and **at what cost** — to add cache, pub/sub, and background workers, with Docker, benchmarks, and synthetic domains safe for public GitHub.
 
-> **Status:** Lab 01 done — Redis cache-aside on the hot product read, with before/after benchmarks. [Public contract](docs/public-contract.md) · [PLAN](docs/PLAN.md)
+> **Status:** Labs 01–02 done. Lab 01 — Redis cache-aside on a hot product read (before/after benchmarks). Lab 02 — checkout god-service vs in-process domain events (measured failure isolation). [Public contract](docs/public-contract.md) · [PLAN](docs/PLAN.md)
 
 Every lab and doc here follows [docs/documentation-philosophy.md](docs/documentation-philosophy.md): the point isn't to show a pattern works, it's to show what it costs to adopt one — and when that cost isn't worth paying.
 
@@ -15,7 +15,7 @@ These labs recreate **scaling pressures from production experience** using a gen
 | Lab | Question | Cost (one line) | Status |
 | --- | --- | --- | --- |
 | [01 — Caching](labs/01-caching) | Fewer DB hits worth staleness? | Staleness, invalidation, one more thing to run | **Done** — [benchmark](labs/01-caching#benchmark-cache-off-vs-on) |
-| [02 — Pub/Sub](labs/02-pub-sub) | Decouple side effects worth losing one readable flow? | Harder tracing, downstream failures | Not started |
+| [02 — Pub/Sub](labs/02-pub-sub) | Decouple side effects worth losing one readable flow? | Harder tracing, downstream failures, eventual consistency | **Done** — [failure-isolation table](labs/02-pub-sub#the-number--failure-isolation) |
 | [03 — Workers](labs/03-background-workers) | Async worth losing immediate feedback? | Job state, retries, backlog | Not started |
 
 Stack: **NestJS 11**, **TypeScript**, **Prisma**, **Redis**, **BullMQ**, **Docker Compose**.
@@ -38,6 +38,14 @@ pnpm run lab:01:seed
 
 # 5. Run Lab 01
 pnpm run lab:01
+```
+
+Lab 02 (checkout god-service vs in-process events) shares the same infra:
+
+```bash
+pnpm run lab:02:migrate      # create the lab02 schema (first run only)
+pnpm run lab:02              # start the API (ARCHITECTURE=monolith|events toggle)
+pnpm run lab:02:demo         # print the monolith-vs-events failure-isolation table
 ```
 
 ## Repository structure
